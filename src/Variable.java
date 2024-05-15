@@ -8,7 +8,7 @@ public class Variable {
     private String[] possibleValues;
 
     // Array of parents of variable
-    private Variable[] parents;
+    private Variable[] parents = null;
 
     // Probability table for variable
     private double[] probabilityTable;
