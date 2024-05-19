@@ -33,7 +33,14 @@ public class Ex1 {
                     // Perform variable elimination
                     String result = VariableEliminationLogic.performVariableElimination(line);
                     FileWriter fileWriter = new FileWriter(file, true);
-                    fileWriter.write("result\n");
+
+                    // Write the result to the output file and add a new line if there is another query
+                    if(reader.ready()){
+                        fileWriter.write(result + "\n");
+                    }
+                    else{
+                        fileWriter.write(result);
+                    }
                     fileWriter.close();
 
                 }
@@ -43,45 +50,27 @@ public class Ex1 {
                     Boolean independent = BayesBallLogic.performBayesBall(line);
 
                     // Write the result to the output file
+                    FileWriter fileWriter = new FileWriter(file, true);
                     if (independent) {
                         // Write "yes" to the output file
-                        FileWriter fileWriter = new FileWriter(file, true);
-                        fileWriter.write("yes\n");
-                        fileWriter.close();
+                        fileWriter.write("yes");
                     }
                     else {
                         // Write "no" to the output file
-                        FileWriter fileWriter = new FileWriter(file, true);
-                        fileWriter.write("no\n");
-                        fileWriter.close();
+                        fileWriter.write("no");
                     }
+
+                    // Write a new line if there is another query
+                    if(reader.ready()){
+                        fileWriter.write("\n");
+                    }
+                    fileWriter.close();
+
                 }
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             System.err.println("Error reading the file: " + e.getMessage());
         }
-
-
-
-
-//        // Iterate over the other lines of input
-//        String line;
-//
-//        while ((line = System.console().readLine()) != null) {
-//            // Check if to perform variable elimination or Bayes Ball
-//
-//            // If the line start with "P(" then perform Bayes Ball
-//            if (line.startsWith("P(")) {
-//                // Perform Bayes Ball
-//                BayesBall.performBayesBall(line);
-//            }
-//
-//            else {
-//                // Perform variable elimination
-//                VariableEliminationLogic.performVariableElimination(line);
-//            }
-//        }
-
-
     }
 }

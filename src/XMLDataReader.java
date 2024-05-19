@@ -113,6 +113,9 @@ public class XMLDataReader {
                     }
                 }
             }
+
+            // Set the children of the variables
+            BayesianNetworkManager.getInstance().setChildren();
         }
         catch (Exception e) {
             e.printStackTrace();
