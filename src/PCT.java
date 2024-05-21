@@ -56,10 +56,25 @@ public class Factor {
     }
 
     // Get the value from the factor table
-    public double getValue(String[] values, String[][] evidence){
+    public double getValue(String[] value, String[][] evidence){
+        // For on evidance to get the first dimension
+        int[] evidenceIndex = new int[evidence.length];
+        for(int i = 0; i < evidence.length; i++){
+            for(int j = 0; j < factorTable.length; j++){
+                if(evidence[i][0].equals(variablesOrder[j])){
+                    evidenceIndex[i] = j;
+                    break;
+                }
+            }
+        }
+
+        // Print the evidence
+        for(int i = 0; i < evidence.length; i++){
+            System.out.println("Evidence: " + evidence[i][0]);
+        }
 
 
-
-        return factorProbability[index];
+        return 0.0;
+        //return factorProbability[index];
     }
 }
