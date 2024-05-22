@@ -16,8 +16,20 @@ public class Variable {
     // Probability table for variable
     private double[] probabilityTable;
 
+    // For variable elimination:
+    final static int UNCOLORED = 0;
+    final static int COLORED = 1;
+    final static int UNVISITED = 0;
+    final static int VISIT_FROM_CHILD = 1;
+    final static int VISIT_FROM_PARENT = 2;
+
+    // At first the variable is uncolored and unvisited
+    int color = UNCOLORED;
+    int visited = UNVISITED;
+
     // Constructor
     public Variable() {
+
     }
 
     // Get name of variable
@@ -87,6 +99,15 @@ public class Variable {
         return probabilityTable;
     }
 
+    // Has parents
+    public boolean hasParents() {
+        return parents != null;
+    }
+
+    // Has children
+    public boolean hasChildren() {
+        return children != null;
+    }
 
 
 }

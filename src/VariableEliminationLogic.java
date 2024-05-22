@@ -55,7 +55,13 @@ public class VariableEliminationLogic {
         }
 
         // Get the hidden variables
-        String[] hidden = splitLine[1].split("-");
+        String[] hidden;
+        if(splitLine.length > 1){
+            hidden = splitLine[1].split("-");
+        }
+        else{
+            hidden = null;
+        }
 
 //        System.out.println("------------------------");
 //        // Print the variableValuePair
