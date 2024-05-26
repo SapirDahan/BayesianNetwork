@@ -14,7 +14,8 @@ public class BayesBallLogic {
 
         String[] evidences = null;
         if (splitLine.length > 1) {
-            // Get the variables in the evidence
+
+            // Get the variables
             String evidence = splitLine[1];
             evidences = evidence.split(",");
 
@@ -32,6 +33,7 @@ public class BayesBallLogic {
 
     // Determine if the variables are independent
     private static boolean areVariablesIndependent(String var1, String var2, String[] evidences) {
+
         // If evidence is not empty, color the given nodes
         if (evidences != null) {
             colorGivenVariables(evidences);
@@ -40,11 +42,22 @@ public class BayesBallLogic {
         // Get the variables of the network
         HashMap<String, Variable> vars = BayesianNetworkManager.getInstance().getVariables();
 
-        return searchIfReached(vars.get(var1), vars.get(var2), vars);
+        // Determine if the variables are independent
+        boolean reached = searchIfReached(vars.get(var1), vars.get(var2));
+
+        // Reset the given nodes
+        resetGivenNodes();
+
+        // Return the result
+        return reached;
     }
 
-    private static boolean searchIfReached(Variable source, Variable target, HashMap<String, Variable> vars){
+    private static boolean searchIfReached(Variable source, Variable target){
+
+        // The queue for the BFS
         Queue<Variable> toVisit = new LinkedList<>();
+
+        // Add the source to the queue
         Variable current = source;
         source.visited = Variable.VISIT_FROM_CHILD;
         toVisit.add(current);
@@ -57,7 +70,6 @@ public class BayesBallLogic {
 
             // If the target is reached, return false, because the variables are dependent
             if (current.getName().equals(target.getName())) {
-                resetGivenNodes();
                 return false;
             }
 
@@ -108,7 +120,6 @@ public class BayesBallLogic {
         }
 
         // If the target is not reached, return true, because the variables are independent
-        resetGivenNodes();
         return true;
     }
 

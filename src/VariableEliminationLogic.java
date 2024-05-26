@@ -95,9 +95,140 @@ public class VariableEliminationLogic {
             return String.format("%.5f", resultExistInCPT) + "," + additionOperations + "," + multiplicationOperations;
         }
 
+//        // Check the second constructor in PCT
+//        Variable[] v = {BayesianNetworkManager.getInstance().getVariable("A"), BayesianNetworkManager.getInstance().getVariable("B"), BayesianNetworkManager.getInstance().getVariable("E")};
+//
+//        // Creade double array fill with 0 length 8
+//        double[] p = new double[8];
+//        PCT factor1 = new PCT(v, p);
+//
+//        if(factor1.isValidPCT()){
+//            // Print the factor1
+//            System.out.println("Factor1: ");
+//            for (int i = 0; i < factor1.getPCTTable()[0].length; i++) {
+//                for (int j = 0; j < factor1.getPCTTable().length; j++) {
+//                    System.out.print(factor1.getPCTTable()[j][i] + " ");
+//                }
+//                System.out.println();
+//            }
+//        }
+
+        // Check that the eliminateVariable function works
+        Variable[] v = {BayesianNetworkManager.getInstance().getVariable("A"), BayesianNetworkManager.getInstance().getVariable("B"), BayesianNetworkManager.getInstance().getVariable("E")};
+
+//        // crate double array fill with 0 length 8
+//        double[] p = new double[8];
+//        PCT factor1 = new PCT(v, p);
+//
+//        PCT a = eliminateVariable(factor1, "A");
+//
+//        // Print the probability table of the new factor
+//        System.out.println("Factor1: ");
+//        for (int i = 0; i < a.getPCTTable()[0].length; i++) {
+//            for (int j = 0; j < a.getPCTTable().length; j++) {
+//                System.out.print(a.getPCTTable()[j][i] + " ");
+//            }
+//            System.out.println();
+//        }
+//
+//        // Print the probability table of the new factor
+//        System.out.println("probability: ");
+//        for (int i = 0; i < a.getPCTProbability().length; i++) {
+//            System.out.print(a.getPCTProbability()[i] + " ");
+//        }
+
+
+
+
 
         // Return the result, formatted to 5 decimal places, and the number of addition and multiplication operations
         return String.format("%.5f", result) + "," + additionOperations + "," + multiplicationOperations;
+    }
+
+    // Marge two PCT @@@ not finished
+    private static PCT mergePCT(PCT factor1, PCT factor2, String variable) {
+
+        // If one of the factors is empty, return the other factor
+        if(factor1 == null){
+            return factor2;
+        }
+        if(factor2 == null){
+            return factor1;
+        }
+
+        // If the factors are not valid, return null
+        if(!factor1.isValidPCT() || !factor2.isValidPCT()){
+            return null;
+        }
+
+        // If the variable is not in the factors, return null
+        if(!factor1.containsVariable(variable) || !factor2.containsVariable(variable)){
+            return null;
+        }
+
+        // If one factor is in the other factor, multiply the factors
+
+
+
+        return null;
+
+    }
+
+    // Eliminate a variable from a PCT
+    private static PCT eliminateVariable(PCT factor, String variable){
+
+        // If the factor is empty, return null
+        if(factor == null){
+            return null;
+        }
+
+        // If the factor is not valid, return null
+        if(!factor.isValidPCT()){
+            return null;
+        }
+
+        // If the variable is not in the factor, return null
+        if(!factor.containsVariable(variable)){
+            return null;
+        }
+
+        // If the variable is the only variable in the factor, return the factor
+        if(factor.getVariablesOrder().length == 1){
+            return factor;
+        }
+
+        // Create a new factor without the variable
+        // The variables order in the new factor
+        Variable[] newVariablesOrder = new Variable[factor.getVariablesOrder().length - 1];
+        int counter = 0;
+        for(int i = 0; i < factor.getVariablesOrder().length; i++){
+            if(!factor.getVariablesOrder()[i].equals(variable)){
+                newVariablesOrder[counter] = factor.getVariablesInOrder()[i];
+                counter++;
+            }
+        }
+
+        // The new factor table
+        // Find the length of the new factor table
+        int newFactorLength = 1;
+        for(int i = 0; i < newVariablesOrder.length; i++){
+            newFactorLength *= newVariablesOrder[i].getPossibleValues().length;
+        }
+
+        // Create the new PCT
+        PCT newFactor = new PCT(newVariablesOrder, new double[newFactorLength]);
+
+        // Create an array to store if a line is already added to the new factor
+        boolean[] added = new boolean[factor.getPCTTable()[0].length];
+
+        // Find all the 2 identical line (without the variable) in the factor table and sum them to the new factor
+        for(int i = 0; i < factor.getPCTTable()[0].length; i++){
+
+        }
+
+
+
+        return newFactor;
     }
 
 }

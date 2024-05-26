@@ -1,3 +1,4 @@
+
 public class PCT {
 
     // The PCT table (as 2D array of the variables names and their values)
@@ -58,6 +59,36 @@ public class PCT {
         }
     }
 
+    // Constructor for the PCT table
+    public PCT(Variable[] variablesOrder, double[] PCTProbability){
+
+        // Get the variables order
+        this.variablesOrder = new String[variablesOrder.length];
+        for (int i = 0; i < variablesOrder.length; i++) {
+            this.variablesOrder[i] = variablesOrder[i].getName();
+        }
+
+        this.PCTProbability = PCTProbability;
+        this.PCTLength = PCTProbability.length;
+        this.validPCT = true;
+
+        // Create the PCT table
+        PCTTable = new String[variablesOrder.length][PCTLength];
+
+        // Fill the PCT table
+
+        // The possible values length of the last variable
+        int counter = 1;
+
+        for (int i = variablesOrder.length - 1; i >= 0; i--) {
+            for (int j = 0; j < PCTLength; j++) {
+                PCTTable[i][j] = variablesOrder[i].getPossibleValues()[(j / counter) % variablesOrder[i].getPossibleValues().length];
+            }
+
+            counter *= variablesOrder[i].getPossibleValues().length;
+        }
+    }
+
     // Get the value from the factor table
     public double getValue(String[] value, String[][] evidence){
         if(validPCT){
@@ -98,5 +129,48 @@ public class PCT {
 
         // If the PCT is not valid or the value is not in the table
         return -1;
+    }
+
+    // Get the PCT table
+    public String[][] getPCTTable() {
+        return PCTTable;
+    }
+
+    // Get the variables order
+    public String[] getVariablesOrder() {
+        return variablesOrder;
+    }
+
+    // Get the PCT length
+    public int getPCTLength() {
+        return PCTLength;
+    }
+
+    // Get the PCT probability
+    public double[] getPCTProbability() {
+        return PCTProbability;
+    }
+
+    // Check if the PCT is valid
+    public boolean isValidPCT() {
+        return validPCT;
+    }
+
+    public boolean containsVariable(String variable) {
+        for (String s : variablesOrder) {
+            if (s.equals(variable)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Return the variables in order of the PCT table
+    public Variable[] getVariablesInOrder(){
+        Variable[] variables = new Variable[variablesOrder.length];
+        for(int i = 0; i < variablesOrder.length; i++){
+            variables[i] = BayesianNetworkManager.getInstance().getVariables().get(variablesOrder[i]);
+        }
+        return variables;
     }
 }
