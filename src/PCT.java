@@ -62,30 +62,33 @@ public class PCT {
     // Constructor for the PCT table
     public PCT(Variable[] variablesOrder, double[] PCTProbability){
 
-        // Get the variables order
-        this.variablesOrder = new String[variablesOrder.length];
-        for (int i = 0; i < variablesOrder.length; i++) {
-            this.variablesOrder[i] = variablesOrder[i].getName();
-        }
-
-        this.PCTProbability = PCTProbability;
-        this.PCTLength = PCTProbability.length;
-        this.validPCT = true;
-
-        // Create the PCT table
-        PCTTable = new String[variablesOrder.length][PCTLength];
-
-        // Fill the PCT table
-
-        // The possible values length of the last variable
-        int counter = 1;
-
-        for (int i = variablesOrder.length - 1; i >= 0; i--) {
-            for (int j = 0; j < PCTLength; j++) {
-                PCTTable[i][j] = variablesOrder[i].getPossibleValues()[(j / counter) % variablesOrder[i].getPossibleValues().length];
+        // Check if the PCT is valid
+        if(!(variablesOrder.length == 0 || PCTProbability.length == 0)){
+            // Get the variables order
+            this.variablesOrder = new String[variablesOrder.length];
+            for (int i = 0; i < variablesOrder.length; i++) {
+                this.variablesOrder[i] = variablesOrder[i].getName();
             }
 
-            counter *= variablesOrder[i].getPossibleValues().length;
+            this.PCTProbability = PCTProbability;
+            this.PCTLength = PCTProbability.length;
+            this.validPCT = true;
+
+            // Create the PCT table
+            PCTTable = new String[variablesOrder.length][PCTLength];
+
+            // Fill the PCT table
+
+            // The possible values length of the last variable
+            int counter = 1;
+
+            for (int i = variablesOrder.length - 1; i >= 0; i--) {
+                for (int j = 0; j < PCTLength; j++) {
+                    PCTTable[i][j] = variablesOrder[i].getPossibleValues()[(j / counter) % variablesOrder[i].getPossibleValues().length];
+                }
+
+                counter *= variablesOrder[i].getPossibleValues().length;
+            }
         }
     }
 
