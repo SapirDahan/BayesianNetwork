@@ -88,7 +88,8 @@ public class VariableEliminationLogic {
             PCTs.set(i, pct);
         }
 
-       // Iterate over all hidden variables
+
+        // Iterate over all hidden variables
        for (String hiddenVariable : hidden) {
 
            // Get all the PCTs that contain the hidden variable
@@ -97,6 +98,18 @@ public class VariableEliminationLogic {
            // Sort the PCTs by the length ascending order and secondary sort by the ascii value ascending order of the variables
            PCTsWithVariable = sortPCTs(PCTsWithVariable);
 
+           // Remove the PCTs that contain the hidden variable from the PCTs list
+           PCTs.removeAll(PCTsWithVariable);
+
+
+
+           // Otherwise, iterate over PCTsWithVariable and join them
+           PCT resultPCT = PCTsWithVariable.get(0);
+           for (int i = 1; i < PCTsWithVariable.size(); i++) {
+               resultPCT = new PCT(resultPCT, PCTsWithVariable.get(i));
+           }
+           // Append the resulting PCT to PCTs
+           PCTs.add(resultPCT);
 
 
        }

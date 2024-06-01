@@ -1,5 +1,8 @@
+import java.util.*;
+
 
 public class PCT {
+
 
     // The PCT table (as 2D array of the variables names and their values)
     private String[][] PCTTable;
@@ -158,11 +161,104 @@ public class PCT {
     }
 
     // Join two PCTs
-    public PCT(PCT pct1, PCT pct2, Variable variable){
+    public PCT(PCT pct1, PCT pct2) {
+        // Find common variables
+        List<String> commonVariables = new ArrayList<>();
+        for (String var1 : pct1.getVariablesOrder()) {
+            for (String var2 : pct2.getVariablesOrder()) {
+                if (var1.equals(var2)) {
+                    commonVariables.add(var1);
+                    break;
+                }
+            }
+        }
 
+        // Calculate the new table length
+        int newLength = 0;
+        List<Integer> matchingIndices1 = new ArrayList<>();
+        List<Integer> matchingIndices2 = new ArrayList<>();
 
+        for (int i = 0; i < pct1.getPCTLength(); i++) {
+            for (int j = 0; j < pct2.getPCTLength(); j++) {
+                boolean match = true;
+                for (String commonVar : commonVariables) {
+                    int index1 = Arrays.asList(pct1.getVariablesOrder()).indexOf(commonVar);
+                    int index2 = Arrays.asList(pct2.getVariablesOrder()).indexOf(commonVar);
+
+                    if (!pct1.getPCTTable()[index1][i].equals(pct2.getPCTTable()[index2][j])) {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match) {
+                    newLength++;
+                    matchingIndices1.add(i);
+                    matchingIndices2.add(j);
+                }
+            }
+        }
+
+        PCTLength = newLength;
+        PCTTable = new String[pct1.getVariablesOrder().length + pct2.getVariablesOrder().length - commonVariables.size()][PCTLength];
+        PCTProbability = new double[PCTLength];
+
+        int rowIndex = 0;
+        for (int i = 0; i < pct1.getPCTLength(); i++) {
+            for (int j = 0; j < pct2.getPCTLength(); j++) {
+                boolean match = true;
+                for (String commonVar : commonVariables) {
+                    int index1 = Arrays.asList(pct1.getVariablesOrder()).indexOf(commonVar);
+                    int index2 = Arrays.asList(pct2.getVariablesOrder()).indexOf(commonVar);
+
+                    if (!pct1.getPCTTable()[index1][i].equals(pct2.getPCTTable()[index2][j])) {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match) {
+                    int colIndex = 0;
+                    for (int k = 0; k < pct1.getVariablesOrder().length; k++) {
+                        if (!commonVariables.contains(pct1.getVariablesOrder()[k])) {
+                            PCTTable[colIndex++][rowIndex] = pct1.getPCTTable()[k][i];
+                        }
+                    }
+                    for (int k = 0; k < pct2.getVariablesOrder().length; k++) {
+                        if (!commonVariables.contains(pct2.getVariablesOrder()[k])) {
+                            PCTTable[colIndex++][rowIndex] = pct2.getPCTTable()[k][j];
+                        }
+                    }
+                    for (String commonVar : commonVariables) {
+                        int index = Arrays.asList(pct1.getVariablesOrder()).indexOf(commonVar);
+                        PCTTable[colIndex++][rowIndex] = pct1.getPCTTable()[index][i];
+                    }
+                    PCTProbability[rowIndex] = pct1.getPCTProbability()[i] * pct2.getPCTProbability()[j];
+                    rowIndex++;
+                }
+            }
+        }
+
+        // Set the variables order
+        variablesOrder = new String[pct1.getVariablesOrder().length + pct2.getVariablesOrder().length - commonVariables.size()];
+        int orderIndex = 0;
+        for (String var : pct1.getVariablesOrder()) {
+            if (!commonVariables.contains(var)) {
+                variablesOrder[orderIndex++] = var;
+            }
+        }
+        for (String var : pct2.getVariablesOrder()) {
+            if (!commonVariables.contains(var)) {
+                variablesOrder[orderIndex++] = var;
+            }
+        }
+        for (String var : commonVariables) {
+            variablesOrder[orderIndex++] = var;
+        }
+
+        validPCT = true;
     }
 
+    public PCT(PCT pct, Variable variable) {
+    }
 
 
     // Get the value from the factor table
