@@ -18,79 +18,152 @@ public class PCT {
 
     // Constructor that gets the PCT table and the variables names
     public PCT(Variable variable) {
+
         // Set the factor length
         PCTLength = variable.getProbabilityTable().length;
-        if(PCTLength>0 && variable.getParents() != null) {
+        if(PCTLength > 0) {
 
             validPCT = true;
+
             // Set factor probability
             PCTProbability = variable.getProbabilityTable();
 
-//            System.out.println("Factor length: " + factorLength);
-//            System.out.println("Factor probability length: " + factorProbability.length);
-
             // Create the factor table
-            PCTTable = new String[variable.getParents().length + 1][PCTLength];
+            if(variable.getParents() != null){
+                PCTTable = new String[variable.getParents().length + 1][PCTLength];
+                // Set the factor table
+
+                // Set the variable values on the last column
+                int counter = variable.getPossibleValues().length;
+                for (int i = 0; i < PCTLength; i++) {
+                    PCTTable[variable.getParents().length][i] = variable.getPossibleValues()[i % counter];
+                }
+
+                // Set the parents values
+                for (int i = variable.getParents().length - 1; i >= 0; i--) {
+                    for (int j = 0; j < PCTLength; j++) {
+                        PCTTable[i][j] = variable.getParents()[i].getPossibleValues()[(j / counter) % variable.getParents()[i].getPossibleValues().length];
+                    }
+
+                    counter *= variable.getParents()[i].getPossibleValues().length;
+                }
+
+                // Set the variables order
+                variablesOrder = new String[variable.getParents().length + 1];
+                variablesOrder[variable.getParents().length] = variable.getName();
+                for (int i = 0; i < variable.getParents().length; i++) {
+                    variablesOrder[i] = variable.getParents()[i].getName();
+                }
+            }
+            else{
+                PCTTable = new String[1][PCTLength];
+
+                // Set the factor table
+
+                // Set the variable values on the last column
+                int counter = variable.getPossibleValues().length;
+                for (int i = 0; i < PCTLength; i++) {
+                    PCTTable[0][i] = variable.getPossibleValues()[i % counter];
+                }
+
+
+                // Set the variables order
+                variablesOrder = new String[1];
+                variablesOrder[0] = variable.getName();
+
+            }
+
+
+
+        }
+    }
+
+    public PCT(PCT pct, Variable variable, String condition) {
+        // Set the factor length
+
+        PCTLength = pct.getPCTLength()/variable.getPossibleValues().length;
+        if(pct.getPCTLength() > 0) {
+
+            validPCT = true;
+
+
+            // Set factor probability
+            PCTProbability = new double[PCTLength];
 
 
             // Set the factor table
 
-            // Set the variable values on the last column
-            int counter = variable.getPossibleValues().length;
-            for (int i = 0; i < PCTLength; i++) {
-                PCTTable[variable.getParents().length][i] = variable.getPossibleValues()[i % counter];
+            // get the index of the condition
+            int conditionIndex = -1;
+            for (int i = 0; i < pct.getVariablesOrder().length; i++) {
+                if(pct.getVariablesOrder()[i].equals(variable.getName())){
+                    conditionIndex = i;
+                    break;
+                }
             }
 
-            // Set the parents values
-            for (int i = variable.getParents().length - 1; i >= 0; i--) {
-                for (int j = 0; j < PCTLength; j++) {
-                    PCTTable[i][j] = variable.getParents()[i].getPossibleValues()[(j / counter) % variable.getParents()[i].getPossibleValues().length];
+            if(variable.getPossibleValues().length > 2 || pct.getVariablesOrder().length == 1) {
+
+                // Create the factor table
+                PCTTable = new String[pct.getVariablesOrder().length][PCTLength];
+
+                // Copy the pct table while ignoring the condition
+                int index = 0;
+                for (int i = 0; i < pct.getPCTLength(); i++) {
+                    if (pct.getPCTTable()[conditionIndex][i].equals(condition)) {
+                        for (int j = 0; j < pct.getVariablesOrder().length; j++) {
+                            PCTTable[j][index] = pct.getPCTTable()[j][i];
+                        }
+                        PCTProbability[index] = pct.getPCTProbability()[i];
+                        index++;
+                    }
                 }
 
-                counter *= variable.getParents()[i].getPossibleValues().length;
+                // Set the variables order
+                variablesOrder = pct.getVariablesOrder();
             }
 
-            // Set the variables order
-            variablesOrder = new String[variable.getParents().length + 1];
-            variablesOrder[variable.getParents().length] = variable.getName();
-            for (int i = 0; i < variable.getParents().length; i++) {
-                variablesOrder[i] = variable.getParents()[i].getName();
+            else{
+                // Create the factor table
+                PCTTable = new String[pct.getVariablesOrder().length - 1][PCTLength];
+
+                // Copy the pct table while ignoring the condition and the column of the condition
+                int index = 0;
+                for (int i = 0; i < pct.getPCTLength(); i++) {
+                    if (pct.getPCTTable()[conditionIndex][i].equals(condition)) {
+                        for (int j = 0; j < pct.getVariablesOrder().length - 1; j++) {
+                            if(j < conditionIndex){
+                                PCTTable[j][index] = pct.getPCTTable()[j][i];
+                            }
+                            else{
+                                PCTTable[j][index] = pct.getPCTTable()[j+1][i];
+                            }
+                        }
+                        PCTProbability[index] = pct.getPCTProbability()[i];
+                        index++;
+                    }
+                }
+
+                // Set the variables order without the variable
+                variablesOrder = new String[pct.getVariablesOrder().length-1];
+                index = 0;
+                for (int i = 0; i < pct.getVariablesOrder().length; i++) {
+                    if(i != conditionIndex){
+                        variablesOrder[index] = pct.getVariablesOrder()[i];
+                        index++;
+                    }
+                }
             }
         }
     }
 
-    // Constructor for the PCT table
-    public PCT(Variable[] variablesOrder, double[] PCTProbability){
+    // Join two PCTs
+    public PCT(PCT pct1, PCT pct2, Variable variable){
 
-        // Check if the PCT is valid
-        if(!(variablesOrder.length == 0 || PCTProbability.length == 0)){
-            // Get the variables order
-            this.variablesOrder = new String[variablesOrder.length];
-            for (int i = 0; i < variablesOrder.length; i++) {
-                this.variablesOrder[i] = variablesOrder[i].getName();
-            }
 
-            this.PCTProbability = PCTProbability;
-            this.PCTLength = PCTProbability.length;
-            this.validPCT = true;
-
-            // Create the PCT table
-            PCTTable = new String[variablesOrder.length][PCTLength];
-
-            // Fill the PCT table
-
-            // The possible values length of the last variable
-            int counter = 1;
-
-            for (int i = variablesOrder.length - 1; i >= 0; i--) {
-                for (int j = 0; j < PCTLength; j++) {
-                    PCTTable[i][j] = variablesOrder[i].getPossibleValues()[(j / counter) % variablesOrder[i].getPossibleValues().length];
-                }
-
-                counter *= variablesOrder[i].getPossibleValues().length;
-            }
-        }
     }
+
+
 
     // Get the value from the factor table
     public double getValue(String[] value, String[][] evidence){
@@ -176,4 +249,5 @@ public class PCT {
         }
         return variables;
     }
+
 }
