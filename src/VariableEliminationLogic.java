@@ -98,6 +98,13 @@ public class VariableEliminationLogic {
            // Sort the PCTs by the length ascending order and secondary sort by the ascii value ascending order of the variables
            PCTsWithVariable = sortPCTs(PCTsWithVariable);
 
+           // Print the PCTs table of PCTsWithVariable
+              for (PCT pct : PCTsWithVariable) {
+                  System.out.println("PCTs with " + hiddenVariable);
+                printPCTTable(pct.getPCTTable(), pct.getPCTProbability());
+                System.out.println("-----------------");
+              }
+
            // Remove the PCTs that contain the hidden variable from the PCTs list
            PCTs.removeAll(PCTsWithVariable);
 
@@ -107,9 +114,21 @@ public class VariableEliminationLogic {
            PCT resultPCT = PCTsWithVariable.get(0);
            for (int i = 1; i < PCTsWithVariable.size(); i++) {
                resultPCT = new PCT(resultPCT, PCTsWithVariable.get(i));
+
+               // Print the PCT table result
+                printPCTTable(resultPCT.getPCTTable(), resultPCT.getPCTProbability());
+                System.out.println("-----------------");
            }
+
+           System.out.println("now eliminate " + hiddenVariable);
+           resultPCT = new PCT(resultPCT, variables.get(hiddenVariable));
+
            // Append the resulting PCT to PCTs
            PCTs.add(resultPCT);
+
+           // print PCT table
+           printPCTTable(resultPCT.getPCTTable(), resultPCT.getPCTProbability());
+           System.out.println("-----------------");
 
 
        }

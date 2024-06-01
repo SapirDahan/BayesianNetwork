@@ -201,6 +201,7 @@ public class PCT {
         PCTLength = newLength;
         PCTTable = new String[pct1.getVariablesOrder().length + pct2.getVariablesOrder().length - commonVariables.size()][PCTLength];
         PCTProbability = new double[PCTLength];
+        System.out.println("PCTLength: " + PCTLength);
 
         int rowIndex = 0;
         for (int i = 0; i < pct1.getPCTLength(); i++) {
@@ -258,7 +259,110 @@ public class PCT {
     }
 
     public PCT(PCT pct, Variable variable) {
+        // Initialize resultPCT structures
+        List<String[]> resultPCTTable = new ArrayList<>();
+        List<Double> resultPCTProbability = new ArrayList<>();
+
+        // Get the index of the variable to be excluded
+        int excludeIndex = -1;
+        for (int i = 0; i < pct.variablesOrder.length; i++) {
+            if (pct.variablesOrder[i].equals(variable.getName())) {
+                excludeIndex = i;
+                break;
+            }
+        }
+
+        if (excludeIndex == -1) {
+            throw new IllegalArgumentException("Variable not found in the PCT");
+        }
+
+        // Create a list to keep track of which rows have been used
+        boolean[] usedRows = new boolean[pct.PCTLength];
+
+        for (int i = 0; i < pct.PCTLength - 1; i++) {
+            if (usedRows[i]) {
+                continue;
+            }
+
+            String[] baseRow = new String[pct.getVariablesOrder().length];
+            for (int k = 0; k < pct.getVariablesOrder().length; k++) {
+                baseRow[k] = pct.PCTTable[k][i];
+            }
+
+            double probabilitySum = pct.PCTProbability[i];
+            usedRows[i] = true;
+
+            for (int j = i + 1; j < pct.PCTLength; j++) {
+                if (usedRows[j]) {
+                    continue;
+                }
+
+                boolean identical = true;
+                for (int k = 0; k < pct.getVariablesOrder().length; k++) {
+//                    System.out.println("i: " + i);
+//                    System.out.println("j: " + j);
+//                    System.out.println("k: " + k);
+//                    System.out.println("condition: " + baseRow[k].equals(pct.PCTTable[k][j]));
+//                    System.out.println("usedRows: " + Arrays.toString(usedRows));
+//
+//
+//                    System.out.println("-----------------");
+                    if (k != excludeIndex && !baseRow[k].equals(pct.PCTTable[k][j])) {
+
+                        identical = false;
+                        break;
+                    }
+
+
+                }
+
+                if (identical) {
+                    probabilitySum += pct.PCTProbability[j];
+                    usedRows[j] = true;
+                }
+
+            }
+
+            // Create the new row excluding the specified variable
+            String[] newRow = new String[pct.getVariablesOrder().length - 1];
+            int newIndex = 0;
+            for (int k = 0; k < baseRow.length; k++) {
+                if (k != excludeIndex) {
+                    newRow[newIndex++] = baseRow[k];
+                }
+            }
+
+            resultPCTTable.add(newRow);
+            resultPCTProbability.add(probabilitySum);
+        }
+
+        // Convert the lists to arrays
+        PCTTable = new String[pct.getVariablesOrder().length - 1][resultPCTTable.size()];
+        for (int j = 0; j < PCTTable[0].length; j++) {
+            for (int i = 0; i < PCTTable.length; i++) {
+                PCTTable[i][j] = resultPCTTable.get(j)[i];
+            }
+        }
+
+
+        PCTProbability = new double[resultPCTProbability.size()];
+        for (int i = 0; i < resultPCTProbability.size(); i++) {
+            PCTProbability[i] = resultPCTProbability.get(i);
+        }
+        PCTLength = PCTTable.length;
+
+        // Set the new variables order
+        variablesOrder = new String[pct.variablesOrder.length - 1];
+        int index = 0;
+        for (int i = 0; i < pct.variablesOrder.length; i++) {
+            if (i != excludeIndex) {
+                variablesOrder[index++] = pct.variablesOrder[i];
+            }
+        }
+
+        validPCT = true;
     }
+
 
 
     // Get the value from the factor table
