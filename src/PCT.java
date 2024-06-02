@@ -173,6 +173,8 @@ public class PCT {
             }
         }
 
+        //System.out.println("Common variables: " + commonVariables.toString());
+
         // Calculate the new table length
         int newLength = 0;
         List<Integer> matchingIndices1 = new ArrayList<>();
@@ -180,6 +182,7 @@ public class PCT {
 
         for (int i = 0; i < pct1.getPCTLength(); i++) {
             for (int j = 0; j < pct2.getPCTLength(); j++) {
+
                 boolean match = true;
                 for (String commonVar : commonVariables) {
                     int index1 = Arrays.asList(pct1.getVariablesOrder()).indexOf(commonVar);
@@ -233,6 +236,7 @@ public class PCT {
                         PCTTable[colIndex++][rowIndex] = pct1.getPCTTable()[index][i];
                     }
                     PCTProbability[rowIndex] = pct1.getPCTProbability()[i] * pct2.getPCTProbability()[j];
+                    VariableEliminationLogic.multiplicationOperations++;
                     rowIndex++;
                 }
             }
@@ -258,6 +262,7 @@ public class PCT {
         validPCT = true;
     }
 
+    // Eliminate a variable from the PCT
     public PCT(PCT pct, Variable variable) {
         // Initialize resultPCT structures
         List<String[]> resultPCTTable = new ArrayList<>();
@@ -318,6 +323,7 @@ public class PCT {
 
                 if (identical) {
                     probabilitySum += pct.PCTProbability[j];
+                    VariableEliminationLogic.additionOperations++;
                     usedRows[j] = true;
                 }
 
@@ -349,7 +355,8 @@ public class PCT {
         for (int i = 0; i < resultPCTProbability.size(); i++) {
             PCTProbability[i] = resultPCTProbability.get(i);
         }
-        PCTLength = PCTTable.length;
+
+        PCTLength = PCTTable[0].length;
 
         // Set the new variables order
         variablesOrder = new String[pct.variablesOrder.length - 1];
@@ -448,6 +455,11 @@ public class PCT {
             variables[i] = BayesianNetworkManager.getInstance().getVariables().get(variablesOrder[i]);
         }
         return variables;
+    }
+
+    // Set the PCT probability table
+    public void setPCTProbability(double[] PCTProbability) {
+        this.PCTProbability = PCTProbability;
     }
 
 }

@@ -4,8 +4,8 @@ public class VariableEliminationLogic {
 
     // Perform variable elimination
     // Count the number of addition and multiplication operations
-    private static int additionOperations = 0;
-    private static int multiplicationOperations = 0;
+    public static int additionOperations = 0;
+    public static int multiplicationOperations = 0;
 
     public static String performVariableElimination(String line) {
 
@@ -110,7 +110,6 @@ public class VariableEliminationLogic {
 
 
 
-            // Otherwise, iterate over PCTsWithVariable and join them
             PCT resultPCT = PCTsWithVariable.get(0);
             for (int i = 1; i < PCTsWithVariable.size(); i++) {
                 resultPCT = new PCT(resultPCT, PCTsWithVariable.get(i));
@@ -130,12 +129,44 @@ public class VariableEliminationLogic {
             printPCTTable(resultPCT.getPCTTable(), resultPCT.getPCTProbability());
             System.out.println("-----------------");
 
+        }
 
+
+        // Get all the PCTs that contain the hidden variable
+        ArrayList<PCT> PCTsWithVariable = getPCTsContainingVariable(PCTs, variableValuePair[0]);
+
+        // Sort the PCTs by the length ascending order and secondary sort by the ascii value ascending order of the variables
+        PCTsWithVariable = sortPCTs(PCTsWithVariable);
+
+        PCT resultPCT = PCTsWithVariable.get(0);
+        for (int i = 1; i < PCTsWithVariable.size(); i++) {
+            resultPCT = new PCT(resultPCT, PCTsWithVariable.get(i));
+
+            // Print the PCT table result
+            printPCTTable(resultPCT.getPCTTable(), resultPCT.getPCTProbability());
+            System.out.println("-----------------");
+        }
+
+        // Normalize the probability table
+        double[] probabilityTable = normalizeProbabilityTable(resultPCT.getPCTProbability());
+
+        // Set the probability table of the resultPCT
+        resultPCT.setPCTProbability(probabilityTable);
+
+        // Print the PCT table result
+        printPCTTable(resultPCT.getPCTTable(), resultPCT.getPCTProbability());
+
+        // Calculate the result
+        for (int i = 0; i < probabilityTable.length; i++) {
+            if (resultPCT.getPCTTable()[i][0].equals(variableValuePair[1])) {
+                result = probabilityTable[i];
+                break;
+            }
         }
 
 
 
-
+        System.out.println("********************************************************");
 
 
         // Return the result, formatted to 5 decimal places, and the number of addition and multiplication operations
@@ -198,6 +229,20 @@ public class VariableEliminationLogic {
             }
         }
         return PCTsWithVariable;
+    }
+
+    // Normalize the probability table
+    private static double[] normalizeProbabilityTable(double[] probabilityTable) {
+        double sum = 0.0;
+        for (double probability : probabilityTable) {
+            sum += probability;
+            additionOperations++;
+        }
+        additionOperations--;
+        for (int i = 0; i < probabilityTable.length; i++) {
+            probabilityTable[i] = probabilityTable[i] / sum;
+        }
+        return probabilityTable;
     }
 
 }
