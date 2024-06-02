@@ -67,7 +67,7 @@ public class VariableEliminationLogic {
         HashMap<String, Variable> variables = BayesianNetworkManager.getInstance().getVariables();
 
 
-       // Create a list of PCTs for the variables int the network
+        // Create a list of PCTs for the variables int the network
         ArrayList<PCT> PCTs = new ArrayList<PCT>();
 
         // Create the PCTs for the variables in the network
@@ -90,48 +90,48 @@ public class VariableEliminationLogic {
 
 
         // Iterate over all hidden variables
-       for (String hiddenVariable : hidden) {
+        for (String hiddenVariable : hidden) {
 
-           // Get all the PCTs that contain the hidden variable
-           ArrayList<PCT> PCTsWithVariable = getPCTsContainingVariable(PCTs, hiddenVariable);
+            // Get all the PCTs that contain the hidden variable
+            ArrayList<PCT> PCTsWithVariable = getPCTsContainingVariable(PCTs, hiddenVariable);
 
-           // Sort the PCTs by the length ascending order and secondary sort by the ascii value ascending order of the variables
-           PCTsWithVariable = sortPCTs(PCTsWithVariable);
+            // Sort the PCTs by the length ascending order and secondary sort by the ascii value ascending order of the variables
+            PCTsWithVariable = sortPCTs(PCTsWithVariable);
 
-           // Print the PCTs table of PCTsWithVariable
-              for (PCT pct : PCTsWithVariable) {
-                  System.out.println("PCTs with " + hiddenVariable);
+            // Print the PCTs table of PCTsWithVariable
+            for (PCT pct : PCTsWithVariable) {
+                System.out.println("PCTs with " + hiddenVariable);
                 printPCTTable(pct.getPCTTable(), pct.getPCTProbability());
                 System.out.println("-----------------");
-              }
+            }
 
-           // Remove the PCTs that contain the hidden variable from the PCTs list
-           PCTs.removeAll(PCTsWithVariable);
+            // Remove the PCTs that contain the hidden variable from the PCTs list
+            PCTs.removeAll(PCTsWithVariable);
 
 
 
-           // Otherwise, iterate over PCTsWithVariable and join them
-           PCT resultPCT = PCTsWithVariable.get(0);
-           for (int i = 1; i < PCTsWithVariable.size(); i++) {
-               resultPCT = new PCT(resultPCT, PCTsWithVariable.get(i));
+            // Otherwise, iterate over PCTsWithVariable and join them
+            PCT resultPCT = PCTsWithVariable.get(0);
+            for (int i = 1; i < PCTsWithVariable.size(); i++) {
+                resultPCT = new PCT(resultPCT, PCTsWithVariable.get(i));
 
-               // Print the PCT table result
+                // Print the PCT table result
                 printPCTTable(resultPCT.getPCTTable(), resultPCT.getPCTProbability());
                 System.out.println("-----------------");
-           }
+            }
 
-           System.out.println("now eliminate " + hiddenVariable);
-           resultPCT = new PCT(resultPCT, variables.get(hiddenVariable));
+            System.out.println("now eliminate " + hiddenVariable);
+            resultPCT = new PCT(resultPCT, variables.get(hiddenVariable));
 
-           // Append the resulting PCT to PCTs
-           PCTs.add(resultPCT);
+            // Append the resulting PCT to PCTs
+            PCTs.add(resultPCT);
 
-           // print PCT table
-           printPCTTable(resultPCT.getPCTTable(), resultPCT.getPCTProbability());
-           System.out.println("-----------------");
+            // print PCT table
+            printPCTTable(resultPCT.getPCTTable(), resultPCT.getPCTProbability());
+            System.out.println("-----------------");
 
 
-       }
+        }
 
 
 

@@ -201,7 +201,7 @@ public class PCT {
         PCTLength = newLength;
         PCTTable = new String[pct1.getVariablesOrder().length + pct2.getVariablesOrder().length - commonVariables.size()][PCTLength];
         PCTProbability = new double[PCTLength];
-        System.out.println("PCTLength: " + PCTLength);
+        System.out.println("PCTLength: " + newLength);
 
         int rowIndex = 0;
         for (int i = 0; i < pct1.getPCTLength(); i++) {
