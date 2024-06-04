@@ -67,11 +67,19 @@ public class VariableEliminationLogic {
         HashMap<String, Variable> variables = BayesianNetworkManager.getInstance().getVariables();
 
 
+        // Create list of variables
+        ArrayList<Variable> variablesList = new ArrayList<Variable>();
+
+
+
+        // Add only the significant variables to the variablesList
+        addSignificantVariables(variablesList, variableValuePair[0], evidenceValuePairs);
+
         // Create a list of PCTs for the variables int the network
         ArrayList<PCT> PCTs = new ArrayList<PCT>();
 
         // Create the PCTs for the variables in the network
-        for (Variable variable : variables.values()) {
+        for (Variable variable : variablesList) {
             PCT pct = new PCT(variable);
             PCTs.add(pct);
         }
@@ -110,24 +118,27 @@ public class VariableEliminationLogic {
 
 
 
-            PCT resultPCT = PCTsWithVariable.get(0);
-            for (int i = 1; i < PCTsWithVariable.size(); i++) {
-                resultPCT = new PCT(resultPCT, PCTsWithVariable.get(i));
+            if(PCTsWithVariable.size() > 0){
+                PCT resultPCT = PCTsWithVariable.get(0);
+                for (int i = 1; i < PCTsWithVariable.size(); i++) {
+                    resultPCT = new PCT(resultPCT, PCTsWithVariable.get(i));
 
-                // Print the PCT table result
+                    // Print the PCT table result
+                    printPCTTable(resultPCT.getPCTTable(), resultPCT.getPCTProbability());
+                    System.out.println("-----------------");
+                }
+
+                System.out.println("now eliminate " + hiddenVariable);
+                resultPCT = new PCT(resultPCT, variables.get(hiddenVariable));
+
+                // Append the resulting PCT to PCTs
+                PCTs.add(resultPCT);
+
+                // print PCT table
                 printPCTTable(resultPCT.getPCTTable(), resultPCT.getPCTProbability());
                 System.out.println("-----------------");
+
             }
-
-            System.out.println("now eliminate " + hiddenVariable);
-            resultPCT = new PCT(resultPCT, variables.get(hiddenVariable));
-
-            // Append the resulting PCT to PCTs
-            PCTs.add(resultPCT);
-
-            // print PCT table
-            printPCTTable(resultPCT.getPCTTable(), resultPCT.getPCTProbability());
-            System.out.println("-----------------");
 
         }
 
@@ -243,6 +254,41 @@ public class VariableEliminationLogic {
             probabilityTable[i] = probabilityTable[i] / sum;
         }
         return probabilityTable;
+    }
+
+    // Add significant variables
+    private static void addSignificantVariables(ArrayList<Variable> variablesList, String variable, String[][] evidenceValuePairs) {
+        // Create a list of variables
+        ArrayList<Variable> alsoSignificant = new ArrayList<Variable>();
+
+
+        variablesList.add(BayesianNetworkManager.getInstance().getVariable(variable));
+        for (String[] evidenceValuePair : evidenceValuePairs) {
+            variablesList.add(BayesianNetworkManager.getInstance().getVariable(evidenceValuePair[0]));
+        }
+
+        // Add all the ascending parents of the variables
+        for (Variable var : variablesList) {
+            addAscendingParents(variablesList, alsoSignificant, var);
+        }
+
+        // Add the alsoSignificant variables to the variablesList
+        variablesList.addAll(alsoSignificant);
+    }
+
+    // Add all the ascending parents of the variable
+    private static void addAscendingParents(ArrayList<Variable> variablesList, ArrayList<Variable>  alsoSignificant, Variable variable) {
+        System.out.println(variable.getName());
+
+        // Go through all the parents of the variable if exist
+        if (variable.getParents() != null) {
+            for (Variable parent : variable.getParents()) {
+                if (!variablesList.contains(parent) && !alsoSignificant.contains(parent)) {
+                    alsoSignificant.add(parent);
+                }
+                addAscendingParents(variablesList, alsoSignificant, parent);
+            }
+        }
     }
 
 }
