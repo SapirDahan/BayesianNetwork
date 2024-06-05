@@ -90,34 +90,34 @@ public class VariableEliminationLogic {
         // Add only the significant variables to the variablesList
         addSignificantVariables(variablesList, variableValuePair[0], evidenceValuePairs);
 
-        // Create a list of PCTs for the variables int the network
-        ArrayList<PCT> PCTs = new ArrayList<PCT>();
+        // Create a list of Factors for the variables int the network
+        ArrayList<Factor> Factors = new ArrayList<Factor>();
 
-        // Create the PCTs for the variables in the network
+        // Create the Factors for the variables in the network
         for (Variable variable : variablesList) {
-            PCT pct = new PCT(variable);
-            PCTs.add(pct);
+            Factor factor = new Factor(variable);
+            Factors.add(factor);
         }
 
 
-        // interate over all PCTs then iterate over all evidence values and craetes for each PCT a new PCT where the evidence is met then add the new PCT to the PCTs list and remove the old one
+        // interate over all Factors then iterate over all evidence values and creates for each Factor a new Factor where the evidence is met then add the new Factor to the Factors list and remove the old one
         if(evidenceValuePairs != null) {
-            for (int i = 0; i < PCTs.size(); i++) {
-                PCT pct = PCTs.get(i);
+            for (int i = 0; i < Factors.size(); i++) {
+                Factor factor = Factors.get(i);
                 for (String[] evidenceValuePair : evidenceValuePairs) {
-                    if (pct.containsVariable(evidenceValuePair[0])) {
-                        pct = new PCT(pct, BayesianNetworkManager.getInstance().getVariable(evidenceValuePair[0]), evidenceValuePair[1]);
+                    if (factor.containsVariable(evidenceValuePair[0])) {
+                        factor = new Factor(factor, BayesianNetworkManager.getInstance().getVariable(evidenceValuePair[0]), evidenceValuePair[1]);
                     }
                 }
-                PCTs.set(i, pct);
+                Factors.set(i, factor);
             }
         }
 
-        // Go through all the PCTs and remove the ones that have length 1
-        for (int i = 0; i < PCTs.size(); i++) {
-            if (PCTs.get(i).getPCTLength() <= 1) {
-                System.out.println("remove " + PCTs.get(i).getVariablesOrder()[0]);
-                PCTs.remove(i);
+        // Go through all the Factors and remove the ones that have length 1
+        for (int i = 0; i < Factors.size(); i++) {
+            if (Factors.get(i).getFactorLength() <= 1) {
+                System.out.println("remove " + Factors.get(i).getVariablesOrder()[0]);
+                Factors.remove(i);
                 i--;
             }
         }
@@ -126,93 +126,69 @@ public class VariableEliminationLogic {
         // Iterate over all hidden variables
         for (String hiddenVariable : hidden) {
 
-            // Get all the PCTs that contain the hidden variable
-            ArrayList<PCT> PCTsWithVariable = getPCTsContainingVariable(PCTs, hiddenVariable);
+            // Get all the Factors that contain the hidden variable
+            ArrayList<Factor> FactorsWithVariable = getFactorsContainingVariable(Factors, hiddenVariable);
 
-            // Sort the PCTs by the length ascending order and secondary sort by the ascii value ascending order of the variables
-            PCTsWithVariable = sortPCTs(PCTsWithVariable);
+            // Sort the Factors by the length ascending order and secondary sort by the ascii value ascending order of the variables
+            FactorsWithVariable = sortFactors(FactorsWithVariable);
 
-            // Print the PCTs table of PCTsWithVariable
-            for (PCT pct : PCTsWithVariable) {
-                System.out.println("PCTs with " + hiddenVariable);
-                printPCTTable(pct.getPCTTable(), pct.getPCTProbability());
-                System.out.println("-----------------");
-            }
-
-            // Remove the PCTs that contain the hidden variable from the PCTs list
-            PCTs.removeAll(PCTsWithVariable);
+            Factors.removeAll(FactorsWithVariable);
 
 
 
-            if(PCTsWithVariable.size() > 0){
-                PCT resultPCT = PCTsWithVariable.get(0);
-                for (int i = 1; i < PCTsWithVariable.size(); i++) {
-                    resultPCT = new PCT(resultPCT, PCTsWithVariable.get(i));
+            if(FactorsWithVariable.size() > 0){
+                Factor resultFactor = FactorsWithVariable.get(0);
+                for (int i = 1; i < FactorsWithVariable.size(); i++) {
+                    resultFactor = new Factor(resultFactor, FactorsWithVariable.get(i));
 
-                    // Print the PCT table result
-                    printPCTTable(resultPCT.getPCTTable(), resultPCT.getPCTProbability());
-                    System.out.println("-----------------");
                 }
 
                 System.out.println("now eliminate " + hiddenVariable);
-                resultPCT = new PCT(resultPCT, variables.get(hiddenVariable));
+                resultFactor = new Factor(resultFactor, variables.get(hiddenVariable));
 
-                // Append the resulting PCT to PCTs
-                PCTs.add(resultPCT);
-
-                // print PCT table
-                printPCTTable(resultPCT.getPCTTable(), resultPCT.getPCTProbability());
-                System.out.println("-----------------");
+                // Append the resulting Factor to Factors
+                Factors.add(resultFactor);
 
             }
 
         }
 
 
-        // Get all the PCTs that contain the hidden variable
-        ArrayList<PCT> PCTsWithVariable = getPCTsContainingVariable(PCTs, variableValuePair[0]);
+        // Get all the Factors that contain the hidden variable
+        ArrayList<Factor> FactorsWithVariable = getFactorsContainingVariable(Factors, variableValuePair[0]);
 
-        // Sort the PCTs by the length ascending order and secondary sort by the ascii value ascending order of the variables
-        PCTsWithVariable = sortPCTs(PCTsWithVariable);
+        // Sort the Factors by the length ascending order and secondary sort by the ascii value ascending order of the variables
+        FactorsWithVariable = sortFactors(FactorsWithVariable);
 
-        PCT resultPCT = PCTsWithVariable.get(0);
-        for (int i = 1; i < PCTsWithVariable.size(); i++) {
-            resultPCT = new PCT(resultPCT, PCTsWithVariable.get(i));
+        Factor resultFactor = FactorsWithVariable.get(0);
+        for (int i = 1; i < FactorsWithVariable.size(); i++) {
+            resultFactor = new Factor(resultFactor, FactorsWithVariable.get(i));
 
-            // Print the PCT table result
-            printPCTTable(resultPCT.getPCTTable(), resultPCT.getPCTProbability());
-            System.out.println("-----------------");
         }
 
         // Normalize the probability table
-        double[] probabilityTable = normalizeProbabilityTable(resultPCT.getPCTProbability());
+        double[] probabilityTable = normalizeProbabilityTable(resultFactor.getFactorProbability());
 
-        // Set the probability table of the resultPCT
-        resultPCT.setPCTProbability(probabilityTable);
+        // Set the probability table of the resultFactor
+        resultFactor.setFactorProbability(probabilityTable);
 
-        // Print the PCT table result
-        printPCTTable(resultPCT.getPCTTable(), resultPCT.getPCTProbability());
 
         // Calculate the result
 
-        // Get the index of the variable in the PCTTable
+        // Get the index of the variable in the FactorTable
         int index = 0;
-        for(int i = 0; i < resultPCT.getVariablesOrder().length; i++){
-            if(resultPCT.getVariablesOrder()[i].equals(variableValuePair[0])){
+        for(int i = 0; i < resultFactor.getVariablesOrder().length; i++){
+            if(resultFactor.getVariablesOrder()[i].equals(variableValuePair[0])){
                 index = i;
             }
         }
-        System.out.println(resultPCT.getPCTTable()[0].length + "((((((((((((");
+        System.out.println(resultFactor.getFactorTable()[0].length + "((((((((((((");
         for (int i = 0; i < probabilityTable.length; i++) {
-            if (resultPCT.getPCTTable()[index][i].equals(variableValuePair[1])) {
+            if (resultFactor.getFactorTable()[index][i].equals(variableValuePair[1])) {
                 result = probabilityTable[i];
                 break;
             }
         }
-
-
-
-        System.out.println("********************************************************");
 
 
         // Return the result, formatted to 5 decimal places, and the number of addition and multiplication operations
@@ -229,19 +205,8 @@ public class VariableEliminationLogic {
         return df.format(result) + "," + additionOperations + "," + multiplicationOperations;
     }
 
-    // Print PCT table
-    private static void printPCTTable(String[][] PCTTable, double[] PCTProbability) {
-        for (int j = 0; j < PCTTable[0].length; j++) {
-            for (int i = 0; i < PCTTable.length; i++) {
-                System.out.print(PCTTable[i][j] + " ");
-            }
-            // Print the value of the probability
-            System.out.print(PCTProbability[j]);
-            System.out.println();
-        }
-    }
 
-    // Get ascii value of a PCTs variables
+    // Get ascii value of a Factors variables
     private static int getAsciiValue(String[] variables) {
         int asciiValue = 0;
         for (String variable : variables) {
@@ -252,30 +217,30 @@ public class VariableEliminationLogic {
         return asciiValue;
     }
 
-    // Sort the PCTs by the length ascending order and secondary sort by the ascii value ascending order of the variables
-    private static ArrayList<PCT> sortPCTs(ArrayList<PCT> PCTs) {
-        Collections.sort(PCTs, new Comparator<PCT>() {
+    // Sort the Factors by the length ascending order and secondary sort by the ascii value ascending order of the variables
+    private static ArrayList<Factor> sortFactors(ArrayList<Factor> Factors) {
+        Collections.sort(Factors, new Comparator<Factor>() {
             @Override
-            public int compare(PCT pct1, PCT pct2) {
-                if (pct1.getPCTLength() == pct2.getPCTLength()) {
-                    return getAsciiValue(pct1.getVariablesOrder()) - getAsciiValue(pct2.getVariablesOrder());
+            public int compare(Factor factor1, Factor factor2) {
+                if (factor1.getFactorLength() == factor2.getFactorLength()) {
+                    return getAsciiValue(factor1.getVariablesOrder()) - getAsciiValue(factor2.getVariablesOrder());
                 }
-                return pct1.getPCTLength() - pct2.getPCTLength();
+                return factor1.getFactorLength() - factor2.getFactorLength();
             }
         });
-        return PCTs;
+        return Factors;
     }
 
 
-    // Get arrayList of PCTs and return all the PCTs that contain the variable
-    private static ArrayList<PCT> getPCTsContainingVariable(ArrayList<PCT> PCTs, String variable) {
-        ArrayList<PCT> PCTsWithVariable = new ArrayList<PCT>();
-        for (PCT pct : PCTs) {
-            if (pct.containsVariable(variable)) {
-                PCTsWithVariable.add(pct);
+    // Get arrayList of Factors and return all the Factors that contain the variable
+    private static ArrayList<Factor> getFactorsContainingVariable(ArrayList<Factor> Factors, String variable) {
+        ArrayList<Factor> FactorsWithVariable = new ArrayList<Factor>();
+        for (Factor factor : Factors) {
+            if (factor.containsVariable(variable)) {
+                FactorsWithVariable.add(factor);
             }
         }
-        return PCTsWithVariable;
+        return FactorsWithVariable;
     }
 
     // Normalize the probability table
