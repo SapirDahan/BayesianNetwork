@@ -43,15 +43,29 @@ public class VariableEliminationLogic {
 //        }
 
         // Get the evidence in the query
-        String[] evidence = querySplit[1].split(",");
+        String[] evidence;
+        if(querySplit.length > 1){
+            evidence = querySplit[1].split(",");
+        }
+        else{
+            evidence = null;
+        }
+
 
         // Save in 2D array the values of the evidence and the evidence, split by "="
-        String[][] evidenceValuePairs = new String[evidence.length][2];
-        for (int i = 0; i < evidence.length; i++) {
-            String[] parts = evidence[i].split("=");
-            evidenceValuePairs[i][0] = parts[0]; // Left value
-            evidenceValuePairs[i][1] = parts[1]; // Right value
+        String[][] evidenceValuePairs;
+        if(evidence != null){
+            evidenceValuePairs = new String[evidence.length][2];
+            for (int i = 0; i < evidence.length; i++) {
+                String[] parts = evidence[i].split("=");
+                evidenceValuePairs[i][0] = parts[0]; // Left value
+                evidenceValuePairs[i][1] = parts[1]; // Right value
+            }
         }
+        else{
+            evidenceValuePairs = null;
+        }
+
 
         // Get the hidden variables
         String[] hidden;
@@ -86,14 +100,25 @@ public class VariableEliminationLogic {
 
 
         // interate over all PCTs then iterate over all evidence values and craetes for each PCT a new PCT where the evidence is met then add the new PCT to the PCTs list and remove the old one
-        for (int i = 0; i < PCTs.size(); i++) {
-            PCT pct = PCTs.get(i);
-            for (String[] evidenceValuePair : evidenceValuePairs) {
-                if (pct.containsVariable(evidenceValuePair[0])) {
-                    pct = new PCT(pct, BayesianNetworkManager.getInstance().getVariable(evidenceValuePair[0]), evidenceValuePair[1]);
+        if(evidenceValuePairs != null) {
+            for (int i = 0; i < PCTs.size(); i++) {
+                PCT pct = PCTs.get(i);
+                for (String[] evidenceValuePair : evidenceValuePairs) {
+                    if (pct.containsVariable(evidenceValuePair[0])) {
+                        pct = new PCT(pct, BayesianNetworkManager.getInstance().getVariable(evidenceValuePair[0]), evidenceValuePair[1]);
+                    }
                 }
+                PCTs.set(i, pct);
             }
-            PCTs.set(i, pct);
+        }
+
+        // Go through all the PCTs and remove the ones that have length 1
+        for (int i = 0; i < PCTs.size(); i++) {
+            if (PCTs.get(i).getPCTLength() <= 1) {
+                System.out.println("remove " + PCTs.get(i).getVariablesOrder()[0]);
+                PCTs.remove(i);
+                i--;
+            }
         }
 
 
@@ -168,8 +193,17 @@ public class VariableEliminationLogic {
         printPCTTable(resultPCT.getPCTTable(), resultPCT.getPCTProbability());
 
         // Calculate the result
+
+        // Get the index of the variable in the PCTTable
+        int index = 0;
+        for(int i = 0; i < resultPCT.getVariablesOrder().length; i++){
+            if(resultPCT.getVariablesOrder()[i].equals(variableValuePair[0])){
+                index = i;
+            }
+        }
+        System.out.println(resultPCT.getPCTTable()[0].length + "((((((((((((");
         for (int i = 0; i < probabilityTable.length; i++) {
-            if (resultPCT.getPCTTable()[i][0].equals(variableValuePair[1])) {
+            if (resultPCT.getPCTTable()[index][i].equals(variableValuePair[1])) {
                 result = probabilityTable[i];
                 break;
             }
@@ -244,15 +278,20 @@ public class VariableEliminationLogic {
 
     // Normalize the probability table
     private static double[] normalizeProbabilityTable(double[] probabilityTable) {
-        double sum = 0.0;
-        for (double probability : probabilityTable) {
-            sum += probability;
-            additionOperations++;
+
+        // Normalize only if we had done calculations
+        if(multiplicationOperations != 0) {
+            double sum = 0.0;
+            for (double probability : probabilityTable) {
+                sum += probability;
+                additionOperations++;
+            }
+            additionOperations--;
+            for (int i = 0; i < probabilityTable.length; i++) {
+                probabilityTable[i] = probabilityTable[i] / sum;
+            }
         }
-        additionOperations--;
-        for (int i = 0; i < probabilityTable.length; i++) {
-            probabilityTable[i] = probabilityTable[i] / sum;
-        }
+
         return probabilityTable;
     }
 
@@ -263,9 +302,12 @@ public class VariableEliminationLogic {
 
 
         variablesList.add(BayesianNetworkManager.getInstance().getVariable(variable));
-        for (String[] evidenceValuePair : evidenceValuePairs) {
-            variablesList.add(BayesianNetworkManager.getInstance().getVariable(evidenceValuePair[0]));
+        if(evidenceValuePairs != null){
+            for (String[] evidenceValuePair : evidenceValuePairs) {
+                variablesList.add(BayesianNetworkManager.getInstance().getVariable(evidenceValuePair[0]));
+            }
         }
+
 
         // Add all the ascending parents of the variables
         for (Variable var : variablesList) {
@@ -274,6 +316,12 @@ public class VariableEliminationLogic {
 
         // Add the alsoSignificant variables to the variablesList
         variablesList.addAll(alsoSignificant);
+
+
+        // Print the variablesList
+        for (Variable var : variablesList) {
+            System.out.println("var list: " + var.getName());
+        }
     }
 
     // Add all the ascending parents of the variable
@@ -290,5 +338,4 @@ public class VariableEliminationLogic {
             }
         }
     }
-
 }
