@@ -1,3 +1,4 @@
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class VariableEliminationLogic {
@@ -224,7 +225,8 @@ public class VariableEliminationLogic {
     }
 
     private static String formatResult(double result) {
-        return String.format("%.5f", result) + "," + additionOperations + "," + multiplicationOperations;
+        DecimalFormat df = new DecimalFormat("#.#####");
+        return df.format(result) + "," + additionOperations + "," + multiplicationOperations;
     }
 
     // Print PCT table
@@ -284,9 +286,8 @@ public class VariableEliminationLogic {
             double sum = 0.0;
             for (double probability : probabilityTable) {
                 sum += probability;
-                additionOperations++;
             }
-            additionOperations--;
+            additionOperations++;
             for (int i = 0; i < probabilityTable.length; i++) {
                 probabilityTable[i] = probabilityTable[i] / sum;
             }
@@ -316,6 +317,36 @@ public class VariableEliminationLogic {
 
         // Add the alsoSignificant variables to the variablesList
         variablesList.addAll(alsoSignificant);
+
+        // Create an array of Strings of the evidence variables without the variable
+        String[] evidenceVariables = null;
+        if(evidenceValuePairs != null) {
+            evidenceVariables = new String[evidenceValuePairs.length];
+            for (int i = 0; i < evidenceValuePairs.length; i++) {
+                evidenceVariables[i] = evidenceValuePairs[i][0];
+            }
+        }
+
+        // From the alsoSignificant list, remove the variables that are independent of the variable given the evidence
+        if(!alsoSignificant.isEmpty()){
+            for (Variable var : alsoSignificant) {
+                System.out.println("check " + var.getName());
+                if (evidenceVariables != null) {
+                    if (BayesBallLogic.areVariablesIndependent(variable, var.getName(), evidenceVariables)) {
+                        variablesList.remove(var);
+                        System.out.println("remove " + var.getName());
+                    }
+                }
+                else {
+                    if (BayesBallLogic.areVariablesIndependent(variable, var.getName(), null)) {
+                        variablesList.remove(var);
+                        System.out.println("remove " + var.getName());
+                    }
+                }
+            }
+        }
+
+
 
 
         // Print the variablesList

@@ -32,7 +32,7 @@ public class BayesBallLogic {
     }
 
     // Determine if the variables are independent
-    private static boolean areVariablesIndependent(String var1, String var2, String[] evidences) {
+    public static boolean areVariablesIndependent(String var1, String var2, String[] evidences) {
 
         // If evidence is not empty, color the given nodes
         if (evidences != null) {
