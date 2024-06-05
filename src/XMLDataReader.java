@@ -17,7 +17,7 @@ public class XMLDataReader {
             // Parse the XML file
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(new File("src/" + XMLFileName));
+            Document doc = builder.parse(new File(XMLFileName));
             doc.getDocumentElement().normalize();
 
             NodeList variableNodes = doc.getElementsByTagName("VARIABLE");

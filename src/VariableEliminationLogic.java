@@ -116,7 +116,6 @@ public class VariableEliminationLogic {
         // Go through all the Factors and remove the ones that have length 1
         for (int i = 0; i < Factors.size(); i++) {
             if (Factors.get(i).getFactorLength() <= 1) {
-                System.out.println("remove " + Factors.get(i).getVariablesOrder()[0]);
                 Factors.remove(i);
                 i--;
             }
@@ -143,7 +142,6 @@ public class VariableEliminationLogic {
 
                 }
 
-                System.out.println("now eliminate " + hiddenVariable);
                 resultFactor = new Factor(resultFactor, variables.get(hiddenVariable));
 
                 // Append the resulting Factor to Factors
@@ -182,14 +180,12 @@ public class VariableEliminationLogic {
                 index = i;
             }
         }
-        System.out.println(resultFactor.getFactorTable()[0].length + "((((((((((((");
         for (int i = 0; i < probabilityTable.length; i++) {
             if (resultFactor.getFactorTable()[index][i].equals(variableValuePair[1])) {
                 result = probabilityTable[i];
                 break;
             }
         }
-
 
         // Return the result, formatted to 5 decimal places, and the number of addition and multiplication operations
         return formatResult(result);
@@ -295,34 +291,22 @@ public class VariableEliminationLogic {
         // From the alsoSignificant list, remove the variables that are independent of the variable given the evidence
         if(!alsoSignificant.isEmpty()){
             for (Variable var : alsoSignificant) {
-                System.out.println("check " + var.getName());
                 if (evidenceVariables != null) {
                     if (BayesBallLogic.areVariablesIndependent(variable, var.getName(), evidenceVariables)) {
                         variablesList.remove(var);
-                        System.out.println("remove " + var.getName());
                     }
                 }
                 else {
                     if (BayesBallLogic.areVariablesIndependent(variable, var.getName(), null)) {
                         variablesList.remove(var);
-                        System.out.println("remove " + var.getName());
                     }
                 }
             }
-        }
-
-
-
-
-        // Print the variablesList
-        for (Variable var : variablesList) {
-            System.out.println("var list: " + var.getName());
         }
     }
 
     // Add all the ascending parents of the variable
     private static void addAscendingParents(ArrayList<Variable> variablesList, ArrayList<Variable>  alsoSignificant, Variable variable) {
-        System.out.println(variable.getName());
 
         // Go through all the parents of the variable if exist
         if (variable.getParents() != null) {

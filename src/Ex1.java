@@ -6,7 +6,7 @@ public class Ex1 {
         // Create a Bayesian network
         BayesianNetworkManager network = BayesianNetworkManager.getInstance();
 
-        String fileName = "src/input.txt";
+        String fileName = "input.txt";
 
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             String XMLFileName = reader.readLine(); // Read the first line
@@ -15,7 +15,7 @@ public class Ex1 {
             XMLDataReader.readXMLFile(XMLFileName);
 
             // Create file output.txt if it does not exist and clear it
-            File file = new File("src/output.txt");
+            File file = new File("output.txt");
 
             // Clear the file
             FileWriter fileClear = new FileWriter(file);
