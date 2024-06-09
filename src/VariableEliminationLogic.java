@@ -133,7 +133,9 @@ public class VariableEliminationLogic {
 
                 }
 
+
                 resultFactor = new Factor(resultFactor, variables.get(hiddenVariable));
+
 
                 // Append the resulting Factor to Factors
                 Factors.add(resultFactor);

@@ -153,6 +153,7 @@ public class Factor {
         }
     }
 
+
     // Join two Factors
     public Factor(Factor factor1, Factor factor2) {
 
