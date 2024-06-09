@@ -37,12 +37,6 @@ public class BayesianNetworkManager {
 
     // Go through all the variables and set the children
     public void setChildren() {
-//        for(int i = 0; i < variables.size(); i++){
-//            Variable variable = variables.get(i);
-//            for(int j = 0; j < variable.getParents().length; j++){
-//                variable.getParents()[j].addChild(variable);
-//            }
-//        }
         for (Variable variable : variables.values()) {
             if(variable.getParents() != null){
                 for (Variable parent : variable.getParents()) {

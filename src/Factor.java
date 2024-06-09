@@ -28,6 +28,7 @@ public class Factor {
         // Create the factor table
         if(variable.getParents() != null){
             FactorTable = new String[variable.getParents().length + 1][FactorLength];
+
             // Set the factor table
 
             // Set the variable values on the last column
@@ -74,9 +75,11 @@ public class Factor {
     }
 
     public Factor(Factor factor, Variable variable, String condition) {
-        // Set the factor length
 
+        // Set the factor length
         FactorLength = factor.getFactorLength()/variable.getPossibleValues().length;
+
+        // Check if the factor is not empty
         if(factor.getFactorLength() > 0) {
 
             // Set factor probability
@@ -94,6 +97,7 @@ public class Factor {
                 }
             }
 
+            // Check if the variable has more than 2 possible values or the factor has only one variable
             if(variable.getPossibleValues().length > 2 || factor.getVariablesOrder().length == 1) {
 
                 // Create the factor table
@@ -151,6 +155,7 @@ public class Factor {
 
     // Join two Factors
     public Factor(Factor factor1, Factor factor2) {
+
         // Find common variables
         List<String> commonVariables = new ArrayList<>();
         for (String var1 : factor1.getVariablesOrder()) {
@@ -162,17 +167,18 @@ public class Factor {
             }
         }
 
-        //System.out.println("Common variables: " + commonVariables.toString());
-
         // Calculate the new table length
         int newLength = 0;
         List<Integer> matchingIndices1 = new ArrayList<>();
         List<Integer> matchingIndices2 = new ArrayList<>();
 
+        // Find the matching rows
         for (int i = 0; i < factor1.getFactorLength(); i++) {
             for (int j = 0; j < factor2.getFactorLength(); j++) {
 
                 boolean match = true;
+
+                // Check if rows match based on common variables
                 for (String commonVar : commonVariables) {
                     int index1 = Arrays.asList(factor1.getVariablesOrder()).indexOf(commonVar);
                     int index2 = Arrays.asList(factor2.getVariablesOrder()).indexOf(commonVar);
@@ -182,6 +188,8 @@ public class Factor {
                         break;
                     }
                 }
+
+                // If the rows match, add them to the new table
                 if (match) {
                     newLength++;
                     matchingIndices1.add(i);
@@ -190,14 +198,18 @@ public class Factor {
             }
         }
 
+        // Initialize the new factor's table and probability arrays
         FactorLength = newLength;
         FactorTable = new String[factor1.getVariablesOrder().length + factor2.getVariablesOrder().length - commonVariables.size()][FactorLength];
         FactorProbability = new double[FactorLength];
 
+        // Fill the new table
         int rowIndex = 0;
         for (int i = 0; i < factor1.getFactorLength(); i++) {
             for (int j = 0; j < factor2.getFactorLength(); j++) {
                 boolean match = true;
+
+                // Check if rows match based on common variables
                 for (String commonVar : commonVariables) {
                     int index1 = Arrays.asList(factor1.getVariablesOrder()).indexOf(commonVar);
                     int index2 = Arrays.asList(factor2.getVariablesOrder()).indexOf(commonVar);
@@ -209,20 +221,24 @@ public class Factor {
                 }
                 if (match) {
                     int colIndex = 0;
+                    // Copy non-common variables from factor1
                     for (int k = 0; k < factor1.getVariablesOrder().length; k++) {
                         if (!commonVariables.contains(factor1.getVariablesOrder()[k])) {
                             FactorTable[colIndex++][rowIndex] = factor1.getFactorTable()[k][i];
                         }
                     }
+                    // Copy non-common variables from factor2
                     for (int k = 0; k < factor2.getVariablesOrder().length; k++) {
                         if (!commonVariables.contains(factor2.getVariablesOrder()[k])) {
                             FactorTable[colIndex++][rowIndex] = factor2.getFactorTable()[k][j];
                         }
                     }
+                    // Copy common variables
                     for (String commonVar : commonVariables) {
                         int index = Arrays.asList(factor1.getVariablesOrder()).indexOf(commonVar);
                         FactorTable[colIndex++][rowIndex] = factor1.getFactorTable()[index][i];
                     }
+                    // Compute the new probability
                     FactorProbability[rowIndex] = factor1.getFactorProbability()[i] * factor2.getFactorProbability()[j];
                     VariableEliminationLogic.multiplicationOperations++;
                     rowIndex++;
@@ -230,7 +246,7 @@ public class Factor {
             }
         }
 
-        // Set the variables order
+        // Set the variables order for the new factor
         variablesOrder = new String[factor1.getVariablesOrder().length + factor2.getVariablesOrder().length - commonVariables.size()];
         int orderIndex = 0;
         for (String var : factor1.getVariablesOrder()) {
@@ -246,11 +262,12 @@ public class Factor {
         for (String var : commonVariables) {
             variablesOrder[orderIndex++] = var;
         }
-
     }
+
 
     // Eliminate a variable from the Factor
     public Factor(Factor factor, Variable variable) {
+
         // Initialize resultFactor structures
         List<String[]> resultFactorTable = new ArrayList<>();
         List<Double> resultFactorProbability = new ArrayList<>();
@@ -264,6 +281,7 @@ public class Factor {
             }
         }
 
+        // Check if the variable was found
         if (excludeIndex == -1) {
             throw new IllegalArgumentException("Variable not found in the Factor");
         }
@@ -271,42 +289,43 @@ public class Factor {
         // Create a list to keep track of which rows have been used
         boolean[] usedRows = new boolean[factor.FactorLength];
 
+        // Iterate over the rows of the factor
         for (int i = 0; i < factor.FactorLength - 1; i++) {
             if (usedRows[i]) {
                 continue;
             }
 
+            // Copy the current row to baseRow
             String[] baseRow = new String[factor.getVariablesOrder().length];
             for (int k = 0; k < factor.getVariablesOrder().length; k++) {
                 baseRow[k] = factor.FactorTable[k][i];
             }
 
+            // Initialize the probability sum with the current row's probability
             double probabilitySum = factor.FactorProbability[i];
             usedRows[i] = true;
 
+            // Compare the current row with the remaining rows
             for (int j = i + 1; j < factor.FactorLength; j++) {
                 if (usedRows[j]) {
                     continue;
                 }
 
                 boolean identical = true;
+                // Check if the rows are identical excluding the variable to be eliminated
                 for (int k = 0; k < factor.getVariablesOrder().length; k++) {
-
                     if (k != excludeIndex && !baseRow[k].equals(factor.FactorTable[k][j])) {
-
                         identical = false;
                         break;
                     }
-
-
                 }
 
+                // If identical, sum the probabilities
                 if (identical) {
                     probabilitySum += factor.FactorProbability[j];
                     VariableEliminationLogic.additionOperations++;
                     usedRows[j] = true;
                 }
-
             }
 
             // Create the new row excluding the specified variable
@@ -318,6 +337,7 @@ public class Factor {
                 }
             }
 
+            // Add the new row and the summed probability to the result structures
             resultFactorTable.add(newRow);
             resultFactorProbability.add(probabilitySum);
         }
@@ -330,15 +350,16 @@ public class Factor {
             }
         }
 
-
+        // Convert the probability list to an array
         FactorProbability = new double[resultFactorProbability.size()];
         for (int i = 0; i < resultFactorProbability.size(); i++) {
             FactorProbability[i] = resultFactorProbability.get(i);
         }
 
+        // Set the new factor length
         FactorLength = FactorTable[0].length;
 
-        // Set the new variables order
+        // Set the new variables order excluding the eliminated variable
         variablesOrder = new String[factor.variablesOrder.length - 1];
         int index = 0;
         for (int i = 0; i < factor.variablesOrder.length; i++) {
@@ -346,51 +367,9 @@ public class Factor {
                 variablesOrder[index++] = factor.variablesOrder[i];
             }
         }
-
     }
 
 
-
-    // Get the value from the factor table
-    public double getValue(String[] value, String[][] evidence){
-
-        // Arrange the evidence and the value in the same order as the factor table
-        String[] tableRow = new String[FactorTable.length];
-        for (String[] strings : evidence) {
-            for (int j = 0; j < FactorTable.length; j++) {
-                if (strings[0].equals(variablesOrder[j])) {
-                    tableRow[j] = strings[1];
-                    break;
-                }
-            }
-        }
-
-        tableRow[FactorTable.length - 1] = value[1];
-
-        // Check if the array is full
-        for (String s : tableRow) {
-            if (s == null) {
-                return -1;
-            }
-        }
-
-        // Find the index of the value in the factor table
-        for(int i = 0; i < FactorTable[0].length; i++){
-            boolean flag = true;
-            for(int j = 0; j < FactorTable.length; j++){
-                if(!tableRow[j].equals(FactorTable[j][i])){
-                   flag = false;
-                }
-            }
-            if(flag){
-                return FactorProbability[i];
-            }
-        }
-
-
-        // If the Factor is not valid or the value is not in the table
-        return -1;
-    }
 
     // Get the Factor table
     public String[][] getFactorTable() {
@@ -412,7 +391,7 @@ public class Factor {
         return FactorProbability;
     }
 
-
+    // Check if the Factor contains a variable
     public boolean containsVariable(String variable) {
         for (String s : variablesOrder) {
             if (s.equals(variable)) {
@@ -420,15 +399,6 @@ public class Factor {
             }
         }
         return false;
-    }
-
-    // Return the variables in order of the Factor table
-    public Variable[] getVariablesInOrder(){
-        Variable[] variables = new Variable[variablesOrder.length];
-        for(int i = 0; i < variablesOrder.length; i++){
-            variables[i] = BayesianNetworkManager.getInstance().getVariables().get(variablesOrder[i]);
-        }
-        return variables;
     }
 
     // Set the Factor probability table

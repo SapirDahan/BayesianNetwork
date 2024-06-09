@@ -3,7 +3,8 @@ import java.util.*;
 
 public class VariableEliminationLogic {
 
-    // Perform variable elimination
+    /// Perform variable elimination ///
+
     // Count the number of addition and multiplication operations
     public static int additionOperations = 0;
     public static int multiplicationOperations = 0;
@@ -15,8 +16,6 @@ public class VariableEliminationLogic {
 
         // Reset the number of addition and multiplication operations
         resetOperationCounts();
-
-        /// P(B=T|J=T,M=T) A-E
 
         // Split the line by the " " character
         String[] splitLine = line.split(" ");
@@ -34,14 +33,6 @@ public class VariableEliminationLogic {
         variableValuePair[0] = valParts[0]; // Left value
         variableValuePair[1] = valParts[1]; // Right value
 
-
-//        // Save in 2D array the values of the variables and the variables, split by "="
-//        String[][] variableValuePairs = new String[vals.length][2];
-//        for (int i = 0; i < vals.length; i++) {
-//            String[] parts = vals[i].split("=");
-//            variableValuePairs[i][0] = parts[0]; // Left value
-//            variableValuePairs[i][1] = parts[1]; // Right value
-//        }
 
         // Get the evidence in the query
         String[] evidence;
@@ -63,6 +54,7 @@ public class VariableEliminationLogic {
                 evidenceValuePairs[i][1] = parts[1]; // Right value
             }
         }
+
         else{
             evidenceValuePairs = null;
         }
@@ -83,8 +75,7 @@ public class VariableEliminationLogic {
 
 
         // Create list of variables
-        ArrayList<Variable> variablesList = new ArrayList<Variable>();
-
+        ArrayList<Variable> variablesList = new ArrayList<>();
 
 
         // Add only the significant variables to the variablesList
@@ -100,7 +91,7 @@ public class VariableEliminationLogic {
         }
 
 
-        // interate over all Factors then iterate over all evidence values and creates for each Factor a new Factor where the evidence is met then add the new Factor to the Factors list and remove the old one
+        // Iterate over all Factors then iterate over all evidence values and creates for each Factor a new Factor where the evidence is met then add the new Factor to the Factors list and remove the old one
         if(evidenceValuePairs != null) {
             for (int i = 0; i < Factors.size(); i++) {
                 Factor factor = Factors.get(i);
@@ -134,8 +125,8 @@ public class VariableEliminationLogic {
             Factors.removeAll(FactorsWithVariable);
 
 
-
-            if(FactorsWithVariable.size() > 0){
+            // Multiply all the Factors that contain the hidden variable
+            if(!FactorsWithVariable.isEmpty()){
                 Factor resultFactor = FactorsWithVariable.get(0);
                 for (int i = 1; i < FactorsWithVariable.size(); i++) {
                     resultFactor = new Factor(resultFactor, FactorsWithVariable.get(i));
@@ -191,6 +182,7 @@ public class VariableEliminationLogic {
         return formatResult(result);
     }
 
+    // Reset the number of addition and multiplication operations
     private static void resetOperationCounts() {
         additionOperations = 0;
         multiplicationOperations = 0;
@@ -216,6 +208,8 @@ public class VariableEliminationLogic {
     // Sort the Factors by the length ascending order and secondary sort by the ascii value ascending order of the variables
     private static ArrayList<Factor> sortFactors(ArrayList<Factor> Factors) {
         Collections.sort(Factors, new Comparator<Factor>() {
+
+            // Compare the Factors by the length ascending order and secondary sort by the ascii value ascending order of the variables
             @Override
             public int compare(Factor factor1, Factor factor2) {
                 if (factor1.getFactorLength() == factor2.getFactorLength()) {

@@ -27,11 +27,6 @@ public class Variable {
     int color = UNCOLORED;
     int visited = UNVISITED;
 
-    // Constructor
-    public Variable() {
-
-    }
-
     // Get name of variable
     public String getName() {
         return name;
@@ -60,11 +55,6 @@ public class Variable {
     // Get parents of variable
     public Variable[] getParents() {
         return parents;
-    }
-
-    // Set children of variable
-    public void setChildren(Variable[] children) {
-        this.children = children;
     }
 
     // Get children of variable

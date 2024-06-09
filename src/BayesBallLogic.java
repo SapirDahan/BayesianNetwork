@@ -75,6 +75,8 @@ public class BayesBallLogic {
 
             // If the variable is uncolored and visited from a child, visit the children and parents
             if (current.color == Variable.UNCOLORED && current.visited == Variable.VISIT_FROM_CHILD) {
+
+                // Visit the children
                 if (current.hasChildren()) {
                     for (Variable child : current.getChildren()) {
                         if (child.visited == Variable.UNVISITED) {
@@ -84,6 +86,7 @@ public class BayesBallLogic {
                     }
                 }
 
+                // Visit the parents
                 if (current.hasParents()) {
                     for (Variable parent : current.getParents()) {
                         if (parent.visited == Variable.UNVISITED) {

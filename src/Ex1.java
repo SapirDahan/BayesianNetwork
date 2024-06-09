@@ -3,11 +3,9 @@ import java.io.*;
 public class Ex1 {
     public static void main(String[] args) {
 
-        // Create a Bayesian network
-        BayesianNetworkManager network = BayesianNetworkManager.getInstance();
-
         String fileName = "input.txt";
 
+        // Read the file
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             String XMLFileName = reader.readLine(); // Read the first line
 
@@ -30,6 +28,7 @@ public class Ex1 {
 
                 // If the line start with "P(" then perform variable elimination
                 if (line.startsWith("P(")) {
+
                     // Perform variable elimination
                     String result = VariableEliminationLogic.performVariableElimination(line);
                     FileWriter fileWriter = new FileWriter(file, true);
@@ -38,9 +37,12 @@ public class Ex1 {
                     if(reader.ready()){
                         fileWriter.write(result + "\n");
                     }
+
                     else{
                         fileWriter.write(result);
                     }
+
+                    // Close the file writer
                     fileWriter.close();
 
                 }
